@@ -1,0 +1,85 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/components/map/map.css')
+    style.
+      #loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 500px;
+        font-size: 1.5rem;
+        color: #666;
+      }
+      #map {
+        height: 500px;
+        width: 100%;
+        display: none;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+    script.
+      async function initMap() {
+        try {
+          // Show map when loaded
+          document.getElementById('map').style.display = 'block';
+          document.getElementById('loading').style.display = 'none';
+          
+          // Load required libraries
+          const { Map } = await google.maps.importLibrary("maps");
+          const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+          const uluru = { lat: -25.363, lng: 131.044 };
+          const map = new Map(document.getElementById("map"), {
+            zoom: 4,
+            center: uluru,
+            mapId: "DEMO_MAP_ID" // Add this line with your actual map ID
+          });
+
+          const contentString = `
+            <div id="content">
+              <div id="siteNotice"></div>
+              <h1 class="firstHeading">Uluru</h1>
+              <div id="bodyContent">
+                <p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large 
+                sandstone rock formation in central Australia.</p>
+                <p>Attribution: <a href="https://en.wikipedia.org/wiki/Uluru">Wikipedia</a></p>
+              </div>
+            </div>
+          `;
+
+          const infowindow = new google.maps.InfoWindow({
+            content: contentString,
+            ariaLabel: "Uluru"
+          });
+
+          const marker = new AdvancedMarkerElement({
+            position: uluru,
+            map: map,
+            title: "Uluru (Ayers Rock)"
+          });
+
+          marker.addEventListener('click', () => {
+            infowindow.open({
+              anchor: marker,
+              map: map
+            });
+          });
+        } catch (error) {
+          console.error("Error loading map:", error);
+          document.getElementById('loading').textContent = "Error loading map. Please check your API key and try again.";
+        }
+      }
+      window.initMap = initMap;
+
+    script(
+      async
+      defer
+      src=`https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap&loading=async&v=beta&libraries=marker`
+    )
+
+  body
+    h1= title
+    #loading Loading map...
+    #map
